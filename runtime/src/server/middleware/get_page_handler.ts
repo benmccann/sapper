@@ -5,8 +5,7 @@ import cookie from 'cookie';
 import devalue from 'devalue';
 import fetch from 'node-fetch';
 import URL from 'url';
-import { Manifest, Page, Req, Res } from './types';
-import { build_dir, dev, src_dir } from '@sapper/internal/manifest-server';
+import { Manifest, Page, Req, Res, build_dir, dev, src_dir } from '@sapper/internal/manifest-server';
 import App from '@sapper/internal/App.svelte';
 
 export function get_page_handler(
@@ -39,17 +38,21 @@ export function get_page_handler(
 		handle_page({
 			pattern: null,
 			parts: [
-				{ name: null, component: error_route }
+				{ name: null, component: { default: error_route } }
 			]
 		}, req, res, statusCode, error || new Error('Unknown error in preload function'));
 	}
 
-	async function handle_page(page: Page, req: Req, res: Res, status = 200, error: Error | string = null) {
+	async function handle_page<Props>(page: Page<Props>, req: Req, res: Res, status = 200, error: Error | string = null) {
 		const is_service_worker_index = req.path === '/service-worker-index.html';
 		const build_info: {
 			bundler: 'rollup' | 'webpack',
 			shimport: string | null,
 			assets: Record<string, string | string[]>,
+			css: {
+				main?: string,
+				chunks: Record<string, string[]>
+			},
 			legacy_assets?: Record<string, string>
 		 } = get_build_info();
 
@@ -242,9 +245,15 @@ export function get_page_handler(
 				level0: {
 					props: preloaded[0]
 				},
-				level1: {
-					segment: segments[0],
-					props: {}
+				level1: error ? {
+					component: manifest.error,
+					props: {
+						error,
+						status
+					}
+				} : {
+					component: page.parts[0]?.component.default,
+					props: preloaded[1] || {},
 				}
 			};
 

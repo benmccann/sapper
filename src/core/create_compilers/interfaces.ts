@@ -23,6 +23,7 @@ export interface CompileResult {
 	chunks: Chunk[];
 	assets: Record<string, string>;
 	css_files: CssFile[];
+	print: () => void;
 
 	to_json: (manifest_data: ManifestData, dirs: Dirs) => BuildInfo
 }

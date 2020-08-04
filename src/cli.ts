@@ -2,11 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import sade from 'sade';
 import colors from 'kleur';
-import * as pkg from '../package.json';
+import { version } from '../package.json';
 import { elapsed, repeat, left_pad, format_milliseconds } from './utils';
 import { InvalidEvent, ErrorEvent, FatalEvent, BuildEvent, ReadyEvent } from './interfaces';
 
-const prog = sade('sapper').version(pkg.version);
+const prog = sade('sapper').version(version);
 
 if (process.argv[2] === 'start') {
 	// remove this in a future version
@@ -91,7 +91,7 @@ prog.command('dev')
 				console.log(`\n${colors.bold().cyan(changed)} changed. rebuilding...`);
 			});
 
-			watcher.on('error', (event: ErrorEvent) => {
+			watcher.on('error', (event: any) => {
 				const { type, error } = event;
 
 				console.log(colors.bold().red(`✗ ${type}`));
@@ -101,11 +101,13 @@ prog.command('dev')
 				}
 
 				console.log(colors.red(event.error.message));
+
 				if (error.frame) console.log(error.frame);
 			});
 
-			watcher.on('fatal', (event: FatalEvent) => {
+			watcher.on('fatal', (event: any) => {
 				console.log(colors.bold().red(`> ${event.message}`));
+
 				if (event.log) console.log(event.log);
 			});
 
