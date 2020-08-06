@@ -1,7 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
-import typescript from 'rollup-plugin-typescript2';
+import typescript from 'rollup-plugin-ts';
 import pkg from './package.json';
 import { builtinModules } from 'module';
 
@@ -28,7 +28,7 @@ function template(kind, external) {
 				extensions: ['.mjs', '.js', '.ts', '.json']
 			}),
 			commonjs(),
-			typescript({tsconfigOverride: override})
+			typescript()
 		]
 	};
 }
@@ -58,7 +58,7 @@ export default [
 				extensions: ['.mjs', '.js', '.ts']
 			}),
 			commonjs(),
-			typescript({tsconfigOverride: override})
+			typescript()
 		]
 	}
 ];
