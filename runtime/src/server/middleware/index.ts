@@ -1,12 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import mime from 'mime/lite';
-import { build_dir, dev, manifest } from '@sapper/internal/manifest-server';
-import { Handler, Req, Res } from './types';
+import { build_dir, dev, manifest, Handler, Req, Res } from '@sapper/internal/manifest-server';
 import { get_server_route_handler } from './get_server_route_handler';
 import { get_page_handler } from './get_page_handler';
 
-type IgnoreValue = Array | RegExp | function | string;
+type IgnoreValue = Array<IgnoreValue> | RegExp | ((uri: string) => boolean) | string;
 
 export default function middleware(opts: {
 	session?: (req: Req, res: Res) => any,
@@ -67,7 +66,7 @@ export default function middleware(opts: {
 	].filter(Boolean));
 }
 
-export function compose_handlers(ignore: IgnoreValue, handlers: Handler[]): Handler {
+export function compose_handlers(ignore: IgnoreValue, handlers: Handler<Req, Res>[]): Handler<Req, Res> {
 	const total = handlers.length;
 
 	function nth_handler(n: number, req: Req, res: Res, next: () => void) {
