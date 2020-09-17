@@ -21,8 +21,21 @@ let rollup: any;
 const inject_styles = `
 export default files => {
 	return Promise.all(files.map(file => new Promise((fulfil, reject) => {
-		const href = new URL(file, import.meta.url);
-		let link = document.querySelector('link[rel=stylesheet][href="' + href + '"]');
+		var scriptPath;
+		try {
+			scriptPath = import.meta.url;
+		} catch(e) {
+			var stackLines = e.stack.split('\\n');
+			var callerIndex = 0;
+			for (var i in stackLines) {
+				if (!stackLines[i].match(/http[s]?:\\/\\//)) continue;
+				callerIndex = Number(i) + 2;
+				break;
+			}
+			scriptPath = stackLines[callerIndex].match(/((http[s]?:\\/\\/.+\\/)([^\\/]+\\.js)):/)[1];
+		}
+		var href = new URL(file, scriptPath);
+		var link = document.querySelector('link[rel=stylesheet][href="' + href + '"]');
 		if (!link) {
 			link = document.createElement('link');
 			link.rel = 'stylesheet';
